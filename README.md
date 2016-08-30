@@ -99,7 +99,7 @@ https://business.line.me/services/products/4/introduction
 ## ルート (URLマッピング)  
 |Action|Method|処理|
 |---|-----------|-----------|
-|/callback|POST|LINE から呼び出されるコールバック。LINEに画像を送信した場合、Visual Recognition の Detect Face を呼出し結果 (JSON を返す。画像以外の場合は、「顔写真を送ってください。」と返答する。|
+|/callback|POST|LINE から呼び出されるコールバック。LINEに画像を送信した場合、Visual Recognition の Detect Face を呼出し結果 (JSON) を返す。画像以外の場合は、「顔写真を送ってください。」と返答する。|
 
 ## まとめ (・・・というかハマった箇所)
 - LINE との接続には Request モジュールを使用しました。イメージを取得する際 (LINE Getting Message Content) は {encoding: null} を指定しないと正しいデータが取得できません。 (デフォルト utf-8変換されるため。)
