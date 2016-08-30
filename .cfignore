@@ -10,6 +10,7 @@ out/
 .project
 .sublime-project
 .tern-project
+*.iml
 
 # その他
 .setenv
