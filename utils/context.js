@@ -40,7 +40,7 @@ exports.visualRecognition = visualRecognition;
 /** LINE BOT API Header */
 exports.headers = {
     'Content-Type': 'application/json; charset=UTF-8',
-    'X-Line-ChannelID': '1477860666',
-    'X-Line-ChannelSecret': '289302465756027b423fb64f850390db',
-    'X-Line-Trusted-User-With-ACL': 'u9c87bedf22b60d91126a9f017a0be65e'
+    'X-Line-ChannelID': process.env.CHANNEL_ID,
+    'X-Line-ChannelSecret': process.env.CHANNEL_SECRET,
+    'X-Line-Trusted-User-With-ACL': process.env.MID
 };
