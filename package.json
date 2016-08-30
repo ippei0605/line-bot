@@ -1,0 +1,17 @@
+{
+  "name": "line-bot",
+  "version": "1.0.0",
+  "description": "LINE BOT",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "body-parser": "~1.15.0",
+    "cfenv": "~1.0.3",
+    "express": "~4.13.4",
+    "morgan": "~1.7.0",
+    "request": "~2.74.0",
+    "watson-developer-cloud": "~2.0.1"
+  }
+}

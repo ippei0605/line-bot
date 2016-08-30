@@ -1,0 +1,10 @@
+# NPMモジュール
+node_modules/
+
+# JSDocの出力先
+# 設定ファイル
+.idea/
+# その他
+.setenv
+.command-memo
+
