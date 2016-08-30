@@ -1,7 +1,7 @@
 # LINE BOT - Watson Visual Recognition Detect faces  
 
 ## はじめに  
-LINE に顔写真を送信することで、その人にお勧めな情報を提示するという話から、IBM Bluemix の Visual Recogniton で 顔の判定をして結果 (JSON) を返す　CF アプリを実装しました。
+LINE に顔写真を送信することで、その人にお勧めな情報を提示するという話から、IBM Bluemix の Visual Recogniton で 顔の判定をして結果 (JSON) を返す CF アプリを実装しました。
 
 LINE BOT は Server IP Whitelist にコールバック・アプリケーションのIP アドレスを設定します。しかし、CFアプリの IP アドレスは起動毎に変わってしまい、固定にできません。そこで、次のサイトを参考に、Bluemix のサービス「Statica」(3rd party) を使用して Proxy を構成しました。 (師匠ありがとうございます。)  
 - http://dotnsf.blog.jp/archives/2016-04-15.html
