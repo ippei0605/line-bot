@@ -1,0 +1,14 @@
+---
+declared-services:
+  statica-service:
+    label: statica
+    plan: starter
+  visual-recognition-service:
+    label: watson_vision_combined
+    plan: free
+applications:
+- services:
+  - statica-service
+  - visual-recognition-service
+  memory: 512M
+  instances: 1

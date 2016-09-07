@@ -18,10 +18,14 @@ app.use(logger('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+// serve the files out of ./public as our main files
+app.use(express.static(__dirname + '/public'));
+
 // ルートを設定する。
 app.post('/callback', routes.callback);
 
 // リクエトを受付ける。
-app.listen(context.appEnv.port, function () {
+app.listen(context.appEnv.port, '0.0.0.0', function() {
     console.log('server starting on ' + context.appEnv.url);
 });
+
