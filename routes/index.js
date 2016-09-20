@@ -57,8 +57,9 @@ var getFilename = function (contentDisposition) {
     return temp ? temp[1] : 'default';
 }
 
-// 顔を見つける。
-var detectFaces = function (content) {
+
+// 画像認識
+var visualRecognition = function (content) {
     var id = content.id;
     // 送信データ作成
     var data = {
@@ -101,27 +102,73 @@ var detectFaces = function (content) {
         // イメージファイルを保存する。 (Visual Recognitionに直接バイナリファイルを渡せないため)
         var filename = '../tmp/' + getFilename(response.headers['content-disposition']);
         context.fs.writeFileSync(filename, body);
-
         // Visual Recognition Detect faces
-        context.visualRecognition.detectFaces({
-            images_file: context.fs.createReadStream(filename)
-        }, function (err, response) {
-            if (err) {
-                console.log('error: ' + err);
-            } else {
-                sendText(JSON.stringify(response, undefined, 2),content);
-            }
-        });
-
+        if (context.appSetting.recognizeMode === 'detectFaces'){
+            sendText('顔写真を解析します', content);
+            context.visualRecognition.detectFaces({
+                images_file: context.fs.createReadStream(filename)
+            }, function (err, response) {
+                if (err) {
+                    console.log('error: ' + err);
+                } else {
+                    sendText(JSON.stringify(response, undefined, 2),content);
+                }
+            });
+        } else {
+            sendText('何が写ってるか解析します', content);
+            context.visualRecognition.classify({
+                images_file: context.fs.createReadStream(filename)
+            }, function (err, response) {
+                if (err) {
+                    console.log('error: ' + err);
+                } else {
+                    sendText(JSON.stringify(response, undefined, 2),content);
+                }
+            });
+        }
     });
 };
 
+
+var textCmd = function (content) {
+    if (content.text.indexOf('help') > -1){
+        sendText('cmdのリスト\n' +
+            'showSetting\n' +
+            'recognizeMode=faces\n' +
+            'recognizeMode=classify', content);
+    }
+    if (content.text.indexOf('showSetting') > -1){
+        sendText(JSON.stringify(context.appSetting), content);
+    }
+    if (content.text.indexOf('recognizeMode=faces') > -1){
+        context.appSetting.recognizeMode = 'detectFaces';
+        sendText(JSON.stringify(context.appSetting), content);
+    }
+    if (content.text.indexOf('recognizeMode=classify') > -1){
+        context.appSetting.recognizeMode = 'classify';
+        sendText(JSON.stringify(context.appSetting), content);
+    }
+};
+
+
 /** LINE から呼び出されるコールバック */
 exports.callback = function (req, res) {
+    // ref https://developers.line.me/bot-api/api-reference#receiving_messages
     var content = req.body.result[0].content;
-    if (content.contentType == 2) {
-        detectFaces(content);
+    console.log('callback: ' + content.conte);
+    if (content.contentType == 1) {
+        // text
+        if (content.text.indexOf('cmd:') > -1) {
+            textCmd(content);
+        } else {
+            sendText('会話は今勉強中だからちょっと待って', content);
+        }
+    } else if (content.contentType == 2) {
+        // images
+        sendText('解析中です。', content);
+        visualRecognition(content)
     } else {
+        //other
         sendText('顔写真を送ってください。', content);
     }
 };

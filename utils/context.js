@@ -5,11 +5,12 @@
  * @author Ippei SUZUKI
  */
 
-var STATICA_SERVICE_NAME = 'line-bot-statica';
-var VISUAL_RECOGNITION_SERVICE_NAME = 'line-bot-visual-recognition';
+var STATICA_SERVICE_NAME = 'statica-service';
+var VISUAL_RECOGNITION_SERVICE_NAME = 'visual-recognition-service';
 
 // 環境変数を取得する。
-var appEnv = require('cfenv').getAppEnv();
+var cfenv = require('cfenv');
+var appEnv = cfenv.getAppEnv();
 
 /** 環境変数 */
 exports.appEnv = appEnv;
@@ -28,6 +29,7 @@ var staticaCreds = appEnv.getServiceCreds(STATICA_SERVICE_NAME);
 exports.staticaUrl = staticaCreds.STATICA_URL;
 
 /** Watson Visual Recognition */
+// ref https://github.com/watson-developer-cloud/node-sdk
 var watson = require('watson-developer-cloud');
 var visualRecognitionCreds = appEnv.getServiceCreds(VISUAL_RECOGNITION_SERVICE_NAME);
 var visualRecognition = watson.visual_recognition({
@@ -44,3 +46,10 @@ exports.headers = {
     'X-Line-ChannelSecret': process.env.CHANNEL_SECRET,
     'X-Line-Trusted-User-With-ACL': process.env.MID
 };
+
+/**
+ * classify, detectFaces
+ */
+exports.appSetting = {
+    recognizeMode : 'detectFaces'
+}
