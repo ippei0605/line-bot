@@ -47,7 +47,8 @@ exports.headers = {
 };
 
 /**
- * classify, detectFaces
+ * アプリ設定
+ * recognizeMode: classify, detectFaces
  */
 exports.appSetting = {
     "recognizeMode": "detectFaces"

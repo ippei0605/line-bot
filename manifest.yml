@@ -10,5 +10,5 @@ applications:
 - services:
   - line-bot-statica
   - line-bot-visual-recognition
-  memory: 512M
+  memory: 256M
   instances: 1

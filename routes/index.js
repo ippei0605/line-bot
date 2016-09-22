@@ -24,7 +24,7 @@ var callLineBotApi = function (options, callback) {
 var sendText = function (text, content) {
     // 送信データを作成する。
     var data = {
-        'to': [content.from],
+        "to": [content.from],
         "toChannel": 1383378250,
         "eventType": "138311608800106203",
         "content": {
@@ -36,12 +36,12 @@ var sendText = function (text, content) {
 
     //オプションを定義する。
     var options = {
-        method: 'POST',
-        url: 'https://trialbot-api.line.me/v1/events',
-        proxy: context.staticaUrl,
-        headers: context.headers,
-        json: true,
-        body: data
+        "method": "POST",
+        "url": "https://trialbot-api.line.me/v1/events",
+        "proxy": context.staticaUrl,
+        "headers": context.headers,
+        "json": true,
+        "body": data
     };
 
     // LINE BOT API: Sending messages (Text)
@@ -50,125 +50,128 @@ var sendText = function (text, content) {
     });
 };
 
-
 // Header 文字列からファイル名を取得する。
 var getFilename = function (contentDisposition) {
     var temp = contentDisposition.match(/^attachment; filename=\"(.*)\"$/);
     return temp ? temp[1] : 'default';
-}
+};
 
-
-// 画像認識
-var visualRecognition = function (content) {
-    var id = content.id;
-    // 送信データ作成
-    var data = {
-        'to': [content.from],
-        "toChannel": 1383378250,
-        "eventType": "138311608800106203",
-        "content": {
-            "toType": 1,
-            "createdTime": 1448616197774,
-            "from": "u90efb18b1449b80dfe176e490058124a",
-            "location": null,
-            "id": id,
-            "to": ["u9a1701809838503fc3f9a7048d819ccf"],
-            "text": "",
-            "contentMetadata": null,
-            "deliveredTime": 0,
-            "contentType": 2,
-            "seq": null
-        },
-        "createdTime": 1448616198606,
-        "eventType": "138311609000106303",
-        "from": "uefb896062d34df287b220e7b581d24a6",
-        "fromChannel": 1341301815,
-        "id": "ABCDEF-12345678901",
-        "to": ["uaf73f6500f6bd2e8f1697782c042420d"],
-        "toChannel": 1441301333
+// Visual Recognition のパラメータを返す。
+var getRecognizeParam = function (body, response) {
+    // イメージファイルを保存する。 (Visual Recognitionに直接バイナリファイルを渡せないため)
+    var filename = '../tmp/' + getFilename(response.headers['content-disposition']);
+    context.fs.writeFileSync(filename, body);
+    return {
+        "images_file": context.fs.createReadStream(filename)
     };
+};
+
+// Visual Recognition の結果
+var result = function (err, response, content) {
+    if (err) {
+        console.log('error: ' + err);
+    } else {
+        sendText(JSON.stringify(response, undefined, 2), content);
+    }
+};
+
+// recognizeMode毎の処理を定義
+var selectRecognizeMode = {
+    "detectFaces": function (content, body, response) {
+        sendText('顔写真を解析します。', content);
+        context.visualRecognition.detectFaces(getRecognizeParam(body, response), function (err, response) {
+            result(err, response, content);
+        });
+    },
+    "classify": function (content, body, response) {
+        sendText('何が写ってるか解析します。', content);
+        context.visualRecognition.classify(getRecognizeParam(body, response), function (err, response) {
+            result(err, response, content);
+        });
+    }
+};
+
+// 画像を解析する。
+var recognize = function (content) {
+    sendText('画像を解析します。', content);
+    var id = content.id;
 
     //オプションを定義
     var options = {
-        url: 'https://trialbot-api.line.me/v1/bot/message/' + id + '/content',
-        encoding: null,
-        proxy: context.staticaUrl,
-        headers: context.headers,
-        json: true
+        "url": "https://trialbot-api.line.me/v1/bot/message/" + id + "/content",
+        "encoding": null,
+        "proxy": context.staticaUrl,
+        "headers": context.headers,
+        "json": true
     };
 
     // LINE BOT API: Getting message content
     callLineBotApi(options, function (body, response) {
-        // イメージファイルを保存する。 (Visual Recognitionに直接バイナリファイルを渡せないため)
-        var filename = '../tmp/' + getFilename(response.headers['content-disposition']);
-        context.fs.writeFileSync(filename, body);
-        // Visual Recognition Detect faces
-        if (context.appSetting.recognizeMode === 'detectFaces'){
-            sendText('顔写真を解析します', content);
-            context.visualRecognition.detectFaces({
-                images_file: context.fs.createReadStream(filename)
-            }, function (err, response) {
-                if (err) {
-                    console.log('error: ' + err);
-                } else {
-                    sendText(JSON.stringify(response, undefined, 2),content);
-                }
-            });
-        } else {
-            sendText('何が写ってるか解析します', content);
-            context.visualRecognition.classify({
-                images_file: context.fs.createReadStream(filename)
-            }, function (err, response) {
-                if (err) {
-                    console.log('error: ' + err);
-                } else {
-                    sendText(JSON.stringify(response, undefined, 2),content);
-                }
-            });
-        }
+        selectRecognizeMode[context.appSetting.recognizeMode](content, body, response);
     });
 };
 
-
-var textCmd = function (content) {
-    if (content.text.indexOf('help') > -1){
-        sendText('cmdのリスト\n' +
-            'showSetting\n' +
-            'recognizeMode=faces\n' +
-            'recognizeMode=classify', content);
-    }
-    if (content.text.indexOf('showSetting') > -1){
+// コマンド定義
+var command = {
+    "cmd:help": function (content) {
+        sendText('cmdのリスト\nshowSetting\nrecognizeMode=faces\nrecognizeMode=classify', content);
+    },
+    "cmd:showSetting": function (content) {
         sendText(JSON.stringify(context.appSetting), content);
-    }
-    if (content.text.indexOf('recognizeMode=faces') > -1){
+    },
+    "cmd:recognizeMode=faces": function (content) {
         context.appSetting.recognizeMode = 'detectFaces';
         sendText(JSON.stringify(context.appSetting), content);
-    }
-    if (content.text.indexOf('recognizeMode=classify') > -1){
+    },
+    "cmd:recognizeMode=classify": function (content) {
         context.appSetting.recognizeMode = 'classify';
         sendText(JSON.stringify(context.appSetting), content);
     }
 };
 
-
-/** LINE から呼び出されるコールバック */
-exports.callback = function (req, res) {
-    // ref https://developers.line.me/bot-api/api-reference#receiving_messages
-    var content = req.body.result[0].content;
-    console.log('callback: ' + content.conte);
-    if (content.contentType == 1) {
-        // text
-        if (content.text.indexOf('cmd:') > -1) {
-            textCmd(content);
-        } else {
-            sendText('会話は今勉強中だからちょっと待って', content);
+// テキストがコマンドかどうか判定する。
+var isCommand = function (text) {
+    var ret = false;
+    for (var key in command) {
+        if (key === text) {
+            ret = true;
+            break;
         }
-    } else if (content.contentType == 2) {
-        // images
-        sendText('解析中です。', content);
-        visualRecognition(content)
-    } else {
-        //other
-        sendText('顔写真を送ってください。', content);
     }
+    return ret;
+};
+
+// 会話する。(勉強中)
+var converse = function (content) {
+    var text = content.text;
+    if (isCommand(text)) {
+        command[text](content)
+    } else {
+        sendText('会話は勉強中です。もう少し待ってください。', content);
+    }
+};
+
+/**
+ * LINE から呼び出されるコールバック
+ * @see {@link https://developers.line.me/bot-api/api-reference#receiving_messages}
+ */
+exports.callback = function (req, res) {
+    var content = req.body.result[0].content;
+    switch (content.contentType) {
+        case 1:
+            // Text message
+            converse(content);
+            break;
+        case 2:
+            // Image message
+            recognize(content);
+            break;
+        default:
+            sendText('写真を送ってください。', content);
+    }
+};
+
+/** テストページを表示する。 */
+exports.index = function (req, res) {
+    res.sendStatus(200);
 };
