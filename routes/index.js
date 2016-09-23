@@ -75,7 +75,11 @@ var result = function (err, response, content) {
     }
 };
 
-// recognizeMode毎の処理を定義
+/**
+ * recognizeMode毎の処理を定義
+ * @see {http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#detect_faces}
+ * @see {http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#classify_an_image}
+ */
 var selectRecognizeMode = {
     "detectFaces": function (content, body, response) {
         sendText('顔写真を解析します。', content);

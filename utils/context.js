@@ -28,7 +28,10 @@ exports.request = require('request');
 var staticaCreds = vcapServices.statica[0].credentials;
 exports.staticaUrl = staticaCreds.STATICA_URL;
 
-/** Watson Visual Recognition */
+/**
+ * Watson Visual Recognition
+ * @see {@link http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#authentication}
+ */
 var watson = require('watson-developer-cloud');
 var visualRecognitionCreds = vcapServices.watson_vision_combined[0].credentials;
 var visualRecognition = watson.visual_recognition({
