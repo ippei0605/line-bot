@@ -115,7 +115,7 @@ https://business.line.me/services/products/4/introduction
 |Action|Method|処理|
 |---------|----|-----------|
 |/        |GET |テストページ (ステータス200「OK」)| 
-|/callback|POST|LINE から呼び出されるコールバック。LINEに画像を送信した場合、Visual Recognition の Detect Face を呼出し結果 (JSON) を返す。画像以外の場合は、「顔写真を送ってください。」と返答する。|
+|/callback|POST|LINE から呼び出されるコールバック。LINEに送付したメッセーの種類により次を実行する。(1)テキストの場合、コマンド処理、コマンド以外の場合は「会話は勉強中」と回答する。(2)イメージの場合、認識モードにより顔認識かクラス分類を呼出す。(3)その他の場合は、「顔写真を送ってください。」と回答する。|
 
 ## まとめ (・・・というかハマった箇所)
 - LINE との接続には Request モジュールを使用しました。イメージを取得する際 (LINE Getting Message Content) は {encoding: null} を指定しないと正しいデータが取得できません。 (デフォルト utf-8変換されるため。)
