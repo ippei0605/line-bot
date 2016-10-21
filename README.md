@@ -91,7 +91,6 @@ https://business.line.me/services/products/4/introduction
     │  .cfignore
     │  .gitignore
     │  app.js                 LINE BOT アプリ
-    │  manifest.yml
     │  package.json
     │  readme.md
     │  
