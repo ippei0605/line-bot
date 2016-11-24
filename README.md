@@ -19,7 +19,7 @@ LINE BOT は Server IP Whitelist にコールバック・アプリケーショ�
 ## 使い方
 LINE アプリの友だち追加で、以下の QR コードを読み込ませてください。  
 
-![QR Code](http://qr-official.line.me/L/J8QFUclNek.png)
+![QR Code](docs/qr-code.png)
 
 実行結果を以下に示します。
 
