@@ -103,7 +103,7 @@ https://line-bot-ippei0605.mybluemix.net:443/callback を設定してくださ�
     │      env.png            readme.md の図: 環境変数 (ユーザー定義)
     │      line-basic.png     readme.md の図: LINE Basic Information
     │      line-whitelist.png readme.md の図: LINE Server IP Whitelist
-    │      qr.png             readme.md の図: QR Code
+    │      qr-code.png        readme.md の図: QR Code
     │      sample.jpg         readme.md の図: 実行結果
     │
     ├─public
