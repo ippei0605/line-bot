@@ -1,6 +1,9 @@
 # LINE BOT - Watson Visual Recognition  
 
 ## 更新履歴
+### version 1.0.2
+* LINE Messaging API 対応をしました。    
+
 ### version 1.0.1
 * 各環境のサービス名統一が難しいため、接続情報をVCAP_SERVICESの配列順で取得するように変更しました。  
 * 確認用にテストページ (ステータス200「OK」) を作成しました。  
@@ -16,7 +19,7 @@ LINE BOT は Server IP Whitelist にコールバック・アプリケーショ�
 ## 使い方
 LINE アプリの友だち追加で、以下の QR コードを読み込ませてください。  
 
-![QR Code](docs/qr.png)  
+![QR Code](http://qr-official.line.me/L/J8QFUclNek.png)
 
 実行結果を以下に示します。
 
@@ -42,7 +45,7 @@ LINE アプリの友だち追加で、以下の QR コードを読み込ませ�
     > 以降、line-bot-ippei0605 で説明します。
 
 
-1. CF コマンド・ライン・インターフェースをインストールしていない場合は、インストールしてください。
+1. Bluemix および CF コマンド・ライン・インターフェースをインストールしていない場合は、インストールしてください。
 
 1. Statica を作成し、line-bot-ippei0605 にバインドしてください。  
 サービス名: line-bot-statica (任意)  
@@ -50,20 +53,21 @@ LINE アプリの友だち追加で、以下の QR コードを読み込ませ�
 1. Visual Recognition を作成し、line-bot-ippei0605 にバインドしてください。  
 サービス名: line-bot-visual-recognition (任意)  
 
-1. 以下のサイトから、BOT API Trial Account を登録してください。  
-https://business.line.me/services/products/4/introduction
+1. 以下のサイトからアカウントを登録してください。
+https://business.line.me/ja/
 
-1. LINE BOT Basic Information を以下に示します。
+1. LINE@MANAGER で Bot の設定をしてください。
+![Bot Settings](docs/bot-settings.png)
+
+1. LINE BOT Basic Information を以下に示します。画面をスクロールさせ、Webhook URLに  	
+https://line-bot-ippei0605.mybluemix.net:443/callback を設定してください。環境変数の設定のために、Channel Access Token の値を取得してください。
 ![LINE Basic Information](docs/line-basic.png)
 
 1. LINE BOT Server IP Whitelist は、Statica Dashboard の Setup に示されている Your Static IPs を登録してください。
 ![LINE Server IP Whitelist](docs/line-whitelist.png)  
 
-1. Bluemix コンソールから CF アプリの環境変数 (ユーザー定義) を設定します。LINE BOT Basic Information に従って設定してください。
-    - CHANNEL_ID : Channel ID
-    - CHANNEL_SECRET : Channel Secret
-    - MID : MID
-    ![環境変数・ユーザー](docs/env.png)  
+1. Bluemix コンソールから CF アプリの環境変数 (ユーザー定義) を設定します。LINE BOT Basic Information の Channel Access Token を定義してください。
+![環境変数・ユーザー](docs/env.png)  
 
 1. 解凍したディレクトリ (line-bot アプリのホーム) に移動してください。
 
@@ -71,16 +75,16 @@ https://business.line.me/services/products/4/introduction
 
 1. Bluemixに接続してください。
 
-        > cf api https://api.ng.bluemix.net
+        > bluemix api https://api.ng.bluemix.net
     
 
 1. Bluemix にログインしてください。
 
-        > cf login -u e87782@jp.ibm.com -o e87782@jp.ibm.com -s dev
+        > bluemix login -u ippei0605@gmail.com -o jiec_gitou -s dev
 
 1. アプリをデプロイしてください。
 
-        > cf push line-bot-ippei0605
+        > cf push "line-bot-ippei0605"
 
 ## アプリの構成
 
@@ -95,8 +99,9 @@ https://business.line.me/services/products/4/introduction
     │  readme.md
     │  
     ├─docs
+    │      bot-settings.png   readme.md の図: LINE@MANAGER Bot 設定
     │      env.png            readme.md の図: 環境変数 (ユーザー定義)
-    │      line-basic.png     readme.md の図: LINE Base Information
+    │      line-basic.png     readme.md の図: LINE Basic Information
     │      line-whitelist.png readme.md の図: LINE Server IP Whitelist
     │      qr.png             readme.md の図: QR Code
     │      sample.jpg         readme.md の図: 実行結果
@@ -119,3 +124,4 @@ https://business.line.me/services/products/4/introduction
 ## まとめ (・・・というかハマった箇所)
 - LINE との接続には Request モジュールを使用しました。イメージを取得する際 (LINE Getting Message Content) は {encoding: null} を指定しないと正しいデータが取得できません。 (デフォルト utf-8変換されるため。)
 - Visual Recognition は直接バイナリデータを扱えません。LINE から取得したイメージ (バイナリ) は一旦 Bluemix 環境に保存して、その時のファイル名からリードストリームを作成してVisual Recognition に渡しています。LINE BOT との連携は向いてないと思いました。 
+- LINE Messaging API 対応において、当初 Sending message (v1, events) を Reply message (v2, reply-message) に置き換えましたが、返信するとトークンが削除されるようで、段階的に返信したり、コンテンツを取得したい場合には向いてません。よって、Push message (v2, push-message) に置き換えてます。 

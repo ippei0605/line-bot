@@ -20,31 +20,35 @@ var callLineBotApi = function (options, callback) {
     });
 };
 
-// テキストメッセージを送信する。
-var sendText = function (text, content) {
-    // 送信データを作成する。
+/**
+ * 返信する。
+ * @param text テキスト
+ * @param event イベント
+ * @see {https://devdocs.line.me/en/#push-message}
+ */
+var pushMessage = function (text, event) {
     var data = {
-        "to": [content.from],
-        "toChannel": 1383378250,
-        "eventType": "138311608800106203",
-        "content": {
-            "contentType": 1,
-            "toType": 1,
-            "text": text
-        }
+        "to": event.source.userId,
+        "messages": [
+            {
+                "type": "text",
+                "text": text
+            }
+        ]
     };
 
-    //オプションを定義する。
     var options = {
         "method": "POST",
-        "url": "https://trialbot-api.line.me/v1/events",
+        "url": "https://api.line.me/v2/bot/message/push",
         "proxy": context.staticaUrl,
-        "headers": context.headers,
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + process.env.CHANNEL_ACCESS_TOKEN
+        },
         "json": true,
         "body": data
     };
 
-    // LINE BOT API: Sending messages (Text)
     callLineBotApi(options, function (body) {
         console.log(body);
     });
@@ -67,11 +71,11 @@ var getRecognizeParam = function (body, response) {
 };
 
 // Visual Recognition の結果
-var result = function (err, response, content) {
+var result = function (err, response, event) {
     if (err) {
         console.log('error: ' + err);
     } else {
-        sendText(JSON.stringify(response, undefined, 2), content);
+        pushMessage(JSON.stringify(response, undefined, 2), event);
     }
 };
 
@@ -81,55 +85,59 @@ var result = function (err, response, content) {
  * @see {http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#classify_an_image}
  */
 var selectRecognizeMode = {
-    "detectFaces": function (content, body, response) {
-        sendText('顔写真を解析します。', content);
+    "detectFaces": function (event, body, response) {
+        pushMessage('顔を認識します。', event);
         context.visualRecognition.detectFaces(getRecognizeParam(body, response), function (err, response) {
-            result(err, response, content);
+            result(err, response, event);
         });
     },
-    "classify": function (content, body, response) {
-        sendText('何が写ってるか解析します。', content);
+    "classify": function (event, body, response) {
+        pushMessage('何が写ってるか解析します。', event);
         context.visualRecognition.classify(getRecognizeParam(body, response), function (err, response) {
-            result(err, response, content);
+            result(err, response, event);
         });
     }
 };
 
-// 画像を解析する。
-var recognize = function (content) {
-    sendText('画像を解析します。', content);
-    var id = content.id;
+/**
+ * 画像を解析する。
+ * @param event イベント
+ * @see {https://devdocs.line.me/en/#get-content}
+ */
+var recognize = function (event) {
+    pushMessage('画像を受信しました。', event);
+    var id = event.message.id;
 
-    //オプションを定義
     var options = {
-        "url": "https://trialbot-api.line.me/v1/bot/message/" + id + "/content",
+        "method": "GET",
+        "url": "https://api.line.me/v2/bot/message/" + id + "/content",
         "encoding": null,
         "proxy": context.staticaUrl,
-        "headers": context.headers,
-        "json": true
+        "headers": {
+            "Authorization": "Bearer " + process.env.CHANNEL_ACCESS_TOKEN
+        }
     };
 
-    // LINE BOT API: Getting message content
     callLineBotApi(options, function (body, response) {
-        selectRecognizeMode[context.appSetting.recognizeMode](content, body, response);
+        selectRecognizeMode[context.appSetting.recognizeMode](event, body, response);
     });
 };
 
 // コマンド定義
 var command = {
-    "cmd:help": function (content) {
-        sendText('cmdのリスト\nshowSetting\nrecognizeMode=faces\nrecognizeMode=classify', content);
+    "cmd:help": function (event) {
+        pushMessage('cmdのリスト\nshowSetting\nrecognizeMode=faces\nrecognizeMode=classify', event);
     },
-    "cmd:showSetting": function (content) {
-        sendText(JSON.stringify(context.appSetting), content);
+    "cmd:showSetting": function (event) {
+        pushMessage(JSON.stringify(context.appSetting), event);
     },
-    "cmd:recognizeMode=faces": function (content) {
+    "cmd:recognizeMode=faces": function (event) {
         context.appSetting.recognizeMode = 'detectFaces';
-        sendText(JSON.stringify(context.appSetting), content);
+        command["cmd:showSetting"](event);
     },
-    "cmd:recognizeMode=classify": function (content) {
+    "cmd:recognizeMode=classify": function (event) {
         context.appSetting.recognizeMode = 'classify';
-        sendText(JSON.stringify(context.appSetting), content);
+        command["cmd:showSetting"](event);
     }
 };
 
@@ -146,32 +154,30 @@ var isCommand = function (text) {
 };
 
 // 会話する。(勉強中)
-var converse = function (content) {
-    var text = content.text;
+var converse = function (event) {
+    var text = event.message.text;
     if (isCommand(text)) {
-        command[text](content)
+        command[text](event)
     } else {
-        sendText('会話は勉強中です。もう少し待ってください。', content);
+        pushMessage('会話は勉強中です。もう少し待ってください。', event);
     }
 };
 
 /**
  * LINE から呼び出されるコールバック
- * @see {@link https://developers.line.me/bot-api/api-reference#receiving_messages}
+ * @see {@link https://devdocs.line.me/en/#common-specifications}
  */
 exports.callback = function (req, res) {
-    var content = req.body.result[0].content;
-    switch (content.contentType) {
-        case 1:
-            // Text message
-            converse(content);
+    var event = req.body.events[0];
+    switch (event.message.type) {
+        case 'text':
+            converse(event);
             break;
-        case 2:
-            // Image message
-            recognize(content);
+        case 'image':
+            recognize(event);
             break;
         default:
-            sendText('写真を送ってください。', content);
+            pushMessage('写真を送ってください。', event);
     }
 };
 

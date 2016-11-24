@@ -37,17 +37,9 @@ var visualRecognitionCreds = vcapServices.watson_vision_combined[0].credentials;
 var visualRecognition = watson.visual_recognition({
     "api_key": visualRecognitionCreds.api_key,
     "version": "v3",
-    "version_date": "2016-05-19"
+    "version_date": "2016-05-20"
 });
 exports.visualRecognition = visualRecognition;
-
-/** LINE BOT API Header */
-exports.headers = {
-    "Content-Type": "application/json; charset=UTF-8",
-    "X-Line-ChannelID": process.env.CHANNEL_ID,
-    "X-Line-ChannelSecret": process.env.CHANNEL_SECRET,
-    "X-Line-Trusted-User-With-ACL": process.env.MID
-};
 
 /**
  * アプリ設定
