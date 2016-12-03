@@ -40,7 +40,7 @@ var pushMessage = function (text, event) {
     var options = {
         "method": "POST",
         "url": "https://api.line.me/v2/bot/message/push",
-        "proxy": context.staticaUrl,
+        //"proxy": context.staticaUrl,
         "headers": {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + process.env.CHANNEL_ACCESS_TOKEN
@@ -112,7 +112,7 @@ var recognize = function (event) {
         "method": "GET",
         "url": "https://api.line.me/v2/bot/message/" + id + "/content",
         "encoding": null,
-        "proxy": context.staticaUrl,
+        //"proxy": context.staticaUrl,
         "headers": {
             "Authorization": "Bearer " + process.env.CHANNEL_ACCESS_TOKEN
         }

@@ -1,6 +1,9 @@
 # LINE BOT - Watson Visual Recognition  
 
 ## 更新履歴
+### 暫定
+* 12/2 Statica 経由でのLINE API アクセスが 403エラーとなる。Starica の IP アドレスがアクセス毎に変動している模様。アプリの Proxy 設定をコメントアウト、LINE のホワイトリストを全て削除したところ現在は正常に動作している。あれっ？ホワイトリストと Statica は不要だったかな？？
+
 ### version 1.0.2
 * LINE Messaging API 対応をしました。    
 
