@@ -24,10 +24,6 @@ exports.path = require('path');
 /** Request */
 exports.request = require('request');
 
-/** STATICA URL */
-var staticaCreds = vcapServices.statica[0].credentials;
-exports.staticaUrl = staticaCreds.STATICA_URL;
-
 /**
  * Watson Visual Recognition
  * @see {@link http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#authentication}
@@ -47,4 +43,10 @@ exports.visualRecognition = visualRecognition;
  */
 exports.appSetting = {
     "recognizeMode": "detectFaces"
+};
+
+/** ファイル拡張子 */
+exports.fileExtension = {
+    "image/jpeg": "jpg",
+    "image/png": "png"
 };

@@ -40,7 +40,6 @@ var pushMessage = function (text, event) {
     var options = {
         "method": "POST",
         "url": "https://api.line.me/v2/bot/message/push",
-        //"proxy": context.staticaUrl,
         "headers": {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + process.env.CHANNEL_ACCESS_TOKEN
@@ -54,16 +53,16 @@ var pushMessage = function (text, event) {
     });
 };
 
-// Header 文字列からファイル名を取得する。
-var getFilename = function (contentDisposition) {
-    var temp = contentDisposition.match(/^attachment; filename=\"(.*)\"$/);
-    return temp ? temp[1] : 'default';
-};
-
 // Visual Recognition のパラメータを返す。
 var getRecognizeParam = function (body, response) {
+    // Header からファイル名を作成する。
+    var filename = '../tmp/' + response.headers['x-line-request-id'];
+    var ext = context.fileExtension[response.headers['content-type']];
+    if (ext) {
+        filename += '.' + ext;
+    }
+
     // イメージファイルを保存する。 (Visual Recognitionに直接バイナリファイルを渡せないため)
-    var filename = '../tmp/' + getFilename(response.headers['content-disposition']);
     context.fs.writeFileSync(filename, body);
     return {
         "images_file": context.fs.createReadStream(filename)
@@ -73,7 +72,8 @@ var getRecognizeParam = function (body, response) {
 // Visual Recognition の結果
 var result = function (err, response, event) {
     if (err) {
-        console.log('error: ' + err);
+        console.log('error: ' + JSON.stringify(err));
+        pushMessage('画像認識に失敗しました。', event);
     } else {
         pushMessage(JSON.stringify(response, undefined, 2), event);
     }
@@ -112,7 +112,6 @@ var recognize = function (event) {
         "method": "GET",
         "url": "https://api.line.me/v2/bot/message/" + id + "/content",
         "encoding": null,
-        //"proxy": context.staticaUrl,
         "headers": {
             "Authorization": "Bearer " + process.env.CHANNEL_ACCESS_TOKEN
         }
