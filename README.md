@@ -141,5 +141,5 @@ https://line-bot-ippei0605.mybluemix.net:443/callback を設定してくださ�
 - LINE との接続には Request モジュールを使用しました。イメージを取得する際 (LINE Getting Message Content) は {encoding: null} を指定しないと正しいデータが取得できません。 (デフォルト utf-8変換されるため。)
 - Visual Recognition は直接バイナリデータを扱えません。LINE から取得したイメージ (バイナリ) は一旦 Bluemix 環境に保存して、その時のファイル名からリードストリームを作成してVisual Recognition に渡しています。LINE BOT との連携は向いてないと思いました。 
 - LINE Messaging API 対応において、当初 Sending message (v1, events) を Reply message (v2, reply-message) に置き換えましたが、返信するとトークンが削除されるようで、段階的に返信したり、コンテンツを取得したい場合には向いてません。よって、Push message (v2, push-message) に置き換えてます。
-- 以前は Server IP Whitelist にコールバック・アプリケーション 固定 IP アドレスを設定する必要がありました。CFアプリの IP アドレスは起動毎に変わってしまい、固定にできませんので、次のサイトを参考に、Bluemix のサービス「Statica」(3rd party) を使用して Proxy を構成しました。現在は Whitelist は空 (任意の IP) も設定可能です。  
+- 以前は Server IP Whitelist にコールバック・アプリケーション の固定 IP アドレスを設定する必要がありました。Bluemix CF アプリの IP アドレスは起動毎に変わってしまい固定できませんので、次のサイトを参考に Bluemix のサービス「Statica」(3rd party) を使用して Proxy を構成しました。現在は Whitelist は空 (任意の IP) も設定可能です。
 - http://dotnsf.blog.jp/archives/2016-04-15.html
