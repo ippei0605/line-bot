@@ -5,11 +5,13 @@
  * @author Ippei SUZUKI
  */
 
+'use strict';
+
 // モジュールを読込む。
-var context = require('../utils/context');
+const context = require('../utils/context');
 
 // LINE BOT API を呼出す。
-var callLineBotApi = function (options, callback) {
+const callLineBotApi = (options, callback) => {
     context.request(options, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(body, response);
@@ -26,8 +28,8 @@ var callLineBotApi = function (options, callback) {
  * @param event イベント
  * @see {https://devdocs.line.me/en/#push-message}
  */
-var pushMessage = function (text, event) {
-    var data = {
+const pushMessage = (text, event) => {
+    const data = {
         "to": event.source.userId,
         "messages": [
             {
@@ -37,7 +39,7 @@ var pushMessage = function (text, event) {
         ]
     };
 
-    var options = {
+    const options = {
         "method": "POST",
         "url": "https://api.line.me/v2/bot/message/push",
         "headers": {
@@ -54,10 +56,10 @@ var pushMessage = function (text, event) {
 };
 
 // Visual Recognition のパラメータを返す。
-var getRecognizeParam = function (body, response) {
+const getRecognizeParam = (body, response) => {
     // Header からファイル名を作成する。
-    var filename = '../tmp/' + response.headers['x-line-request-id'];
-    var ext = context.fileExtension[response.headers['content-type']];
+    let filename = '../tmp/' + response.headers['x-line-request-id'];
+    let ext = context.fileExtension[response.headers['content-type']];
     if (ext) {
         filename += '.' + ext;
     }
@@ -70,7 +72,7 @@ var getRecognizeParam = function (body, response) {
 };
 
 // Visual Recognition の結果
-var result = function (err, response, event) {
+const result = (err, response, event) => {
     if (err) {
         console.log('error: ' + JSON.stringify(err));
         pushMessage('画像認識に失敗しました。', event);
@@ -84,7 +86,7 @@ var result = function (err, response, event) {
  * @see {http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#detect_faces}
  * @see {http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#classify_an_image}
  */
-var selectRecognizeMode = {
+const selectRecognizeMode = {
     "detectFaces": function (event, body, response) {
         pushMessage('顔を認識します。', event);
         context.visualRecognition.detectFaces(getRecognizeParam(body, response), function (err, response) {
@@ -104,13 +106,11 @@ var selectRecognizeMode = {
  * @param event イベント
  * @see {https://devdocs.line.me/en/#get-content}
  */
-var recognize = function (event) {
+const recognize =  (event) =>{
     pushMessage('画像を受信しました。', event);
-    var id = event.message.id;
-
-    var options = {
+    const options = {
         "method": "GET",
-        "url": "https://api.line.me/v2/bot/message/" + id + "/content",
+        "url": "https://api.line.me/v2/bot/message/" + event.message.id + "/content",
         "encoding": null,
         "headers": {
             "Authorization": "Bearer " + process.env.CHANNEL_ACCESS_TOKEN
@@ -123,7 +123,7 @@ var recognize = function (event) {
 };
 
 // コマンド定義
-var command = {
+const command = {
     "cmd:help": function (event) {
         pushMessage('cmdのリスト\nshowSetting\nrecognizeMode=faces\nrecognizeMode=classify', event);
     },
@@ -141,9 +141,9 @@ var command = {
 };
 
 // テキストがコマンドかどうか判定する。
-var isCommand = function (text) {
-    var ret = false;
-    for (var key in command) {
+const isCommand = (text) => {
+    let ret = false;
+    for (let key in command) {
         if (key === text) {
             ret = true;
             break;
@@ -153,8 +153,8 @@ var isCommand = function (text) {
 };
 
 // 会話する。(勉強中)
-var converse = function (event) {
-    var text = event.message.text;
+const converse = (event) => {
+    let text = event.message.text;
     if (isCommand(text)) {
         command[text](event)
     } else {
@@ -166,8 +166,8 @@ var converse = function (event) {
  * LINE から呼び出されるコールバック
  * @see {@link https://devdocs.line.me/en/#common-specifications}
  */
-exports.callback = function (req, res) {
-    var event = req.body.events[0];
+exports.callback = (req, res) => {
+    const event = req.body.events[0];
     switch (event.message.type) {
         case 'text':
             converse(event);
@@ -181,6 +181,6 @@ exports.callback = function (req, res) {
 };
 
 /** テストページを表示する。 */
-exports.index = function (req, res) {
+exports.index = (req, res) => {
     res.sendStatus(200);
 };

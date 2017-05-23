@@ -4,15 +4,15 @@
  */
 
 // モジュールを読込む。
-var context = require('./utils/context');
-var express = require('express');
-var logger = require('morgan');
-var bodyParser = require('body-parser');
-var favicon = require('serve-favicon');
-var routes = require('./routes');
+const context = require('./utils/context');
+const express = require('express');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const favicon = require('serve-favicon');
+const routes = require('./routes');
 
 // アプリケーションを作成する。
-var app = express();
+const app = express();
 
 // ミドルウェアを設定する。
 app.use(logger('dev'));

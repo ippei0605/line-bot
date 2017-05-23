@@ -1,18 +1,19 @@
 {
   "name": "line-bot",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "LINE BOT",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "body-parser": "~1.15.0",
-    "cfenv": "~1.0.3",
-    "express": "~4.13.4",
-    "morgan": "~1.7.0",
-    "serve-favicon": "~2.3.0",
+    "body-parser": "~1.15.2",
+    "cfenv": "~1.0.4",
+    "express": "~4.15.3",
+    "morgan": "~1.8.1",
+    "serve-favicon": "~2.4.3",
     "request": "~2.74.0",
-    "watson-developer-cloud": "~2.0.1"
+    "vcap_services": "~0.3.4",
+    "watson-developer-cloud": "~2.32.0"
   }
 }

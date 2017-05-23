@@ -5,15 +5,15 @@
  * @author Ippei SUZUKI
  */
 
-// 環境変数を取得する。
-var cfenv = require('cfenv');
-var appEnv = cfenv.getAppEnv();
+'use strict';
 
-// VCAP_SERVICES
-var vcapServices = JSON.parse(process.env.VCAP_SERVICES);
+// モジュールを読込む。
+const cfenv = require('cfenv');
+const vcapServices = require('vcap_services');
+const VisualRecognition = require('watson-developer-cloud/visual-recognition/v3')
 
 /** 環境変数 */
-exports.appEnv = appEnv;
+exports.appEnv = cfenv.getAppEnv();
 
 /** File System */
 exports.fs = require('fs');
@@ -28,14 +28,9 @@ exports.request = require('request');
  * Watson Visual Recognition
  * @see {@link http://www.ibm.com/watson/developercloud/visual-recognition/api/v3/?node#authentication}
  */
-var watson = require('watson-developer-cloud');
-var visualRecognitionCreds = vcapServices.watson_vision_combined[0].credentials;
-var visualRecognition = watson.visual_recognition({
-    "api_key": visualRecognitionCreds.api_key,
-    "version": "v3",
-    "version_date": "2016-05-20"
-});
-exports.visualRecognition = visualRecognition;
+const creds = vcapServices.getCredentials('watson_vision_combined');
+creds.version_date = '2016-05-20';
+exports.visualRecognition = new VisualRecognition(creds);
 
 /**
  * アプリ設定
