@@ -22,10 +22,8 @@
 * 上記に伴い、画像解析のモード変更のため、テキストメッセージによるコマンドを実装しました。
 
 ## はじめに  
-LINE に顔写真を送信することで、その人にお勧めな情報を提示するという話から、IBM Bluemix の Visual Recogniton で 顔の判定をして結果 (JSON) を返す CF アプリを実装しました。
+LINE に顔写真を送信することで、その人にお勧めな情報を提示するという話から、IBM Bluemix の Visual Recognition で 顔の判定をして結果 (JSON) を返す CF アプリを実装しました。
 
-LINE BOT は Server IP Whitelist にコールバック・アプリケーションのIP アドレスを設定します。しかし、CFアプリの IP アドレスは起動毎に変わってしまい、固定にできません。そこで、次のサイトを参考に、Bluemix のサービス「Statica」(3rd party) を使用して Proxy を構成しました。 (師匠ありがとうございます。)  
-- http://dotnsf.blog.jp/archives/2016-04-15.html
 
 ## 使い方
 LINE アプリの友だち追加で、以下の QR コードを読み込ませてください。  
@@ -142,4 +140,6 @@ https://line-bot-ippei0605.mybluemix.net:443/callback を設定してくださ�
 ## まとめ (・・・というかハマった箇所)
 - LINE との接続には Request モジュールを使用しました。イメージを取得する際 (LINE Getting Message Content) は {encoding: null} を指定しないと正しいデータが取得できません。 (デフォルト utf-8変換されるため。)
 - Visual Recognition は直接バイナリデータを扱えません。LINE から取得したイメージ (バイナリ) は一旦 Bluemix 環境に保存して、その時のファイル名からリードストリームを作成してVisual Recognition に渡しています。LINE BOT との連携は向いてないと思いました。 
-- LINE Messaging API 対応において、当初 Sending message (v1, events) を Reply message (v2, reply-message) に置き換えましたが、返信するとトークンが削除されるようで、段階的に返信したり、コンテンツを取得したい場合には向いてません。よって、Push message (v2, push-message) に置き換えてます。 
+- LINE Messaging API 対応において、当初 Sending message (v1, events) を Reply message (v2, reply-message) に置き換えましたが、返信するとトークンが削除されるようで、段階的に返信したり、コンテンツを取得したい場合には向いてません。よって、Push message (v2, push-message) に置き換えてます。
+- 以前は Server IP Whitelist にコールバック・アプリケーション 固定 IP アドレスを設定する必要がありました。CFアプリの IP アドレスは起動毎に変わってしまい、固定にできませんので、次のサイトを参考に、Bluemix のサービス「Statica」(3rd party) を使用して Proxy を構成しました。現在は Whitelist は空 (任意の IP) も設定可能です。  
+- http://dotnsf.blog.jp/archives/2016-04-15.html
